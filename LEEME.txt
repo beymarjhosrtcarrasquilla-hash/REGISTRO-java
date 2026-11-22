@@ -1,0 +1,27 @@
+REGISTRO.java - sistema de registro de clases (Java Swing + SQLite)
+
+ABRIR EN NETBEANS
+1. Descomprima el zip. File > Open Project > seleccione la carpeta REGISTRO.java.
+2. Si NetBeans avisa de "Missing library": revise que existan lib/sqlite-jdbc-3.50.3.0.jar
+   (viene incluido) y la biblioteca Absolute Layout (viene con NetBeans).
+3. Clean and Build y Run. La clase principal es VISTA.VentanaPrincipal.
+
+BASE DE DATOS
+- Archivo: datos/RegBD.db, dentro de la carpeta desde la que se ejecuta la aplicacion
+  (en NetBeans = carpeta del proyecto). Se crea sola, con sus tablas, la primera vez.
+- Otra ubicacion: ejecutar con -Dregistro.datos=RUTA (Project Properties > Run > VM Options).
+- Para empezar de cero basta con borrar la carpeta datos/.
+
+USO
+- Registrar Clase: abre el formulario. Elija asignatura/grupo (se llenan sede, vocero y el
+  siguiente numero de encuentro), complete y guarde.
+- Tabla "Registros recientes": doble clic = modificar; clic derecho = modificar/eliminar;
+  tecla Supr = eliminar. "Ver todos" alterna entre los 10 mas recientes y todos.
+
+DATOS DE EJEMPLO
+- ConfiguracionDAO.ejemplo() siembra el docente (William Diaz) y los 5 grupos con sede, hora,
+  matriculados y vocero FICTICIOS la primera vez. Para cambiarlos: edite ese metodo y borre
+  datos/RegBD.db, o edite las tablas docente y asignatura_config (p. ej. con DB Browser for SQLite).
+
+EJECUTAR SIN NETBEANS
+- java -jar dist/REGISTRO.java.jar   (la carpeta dist/lib debe acompanar al jar)

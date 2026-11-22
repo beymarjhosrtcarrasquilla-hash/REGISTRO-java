@@ -1,0 +1,26 @@
+﻿# NetBeans private configuration
+/nbproject/private/
+
+# Build and distribution files
+/build/
+/dist/
+
+# Git backup
+/git_backup/
+
+# Databases, encrypted files, and keys
+/datos/*.db
+/datos/*.dat
+/datos/*.key
+*.key
+*.env
+secretKey.dat
+RegBD.db
+*.db
+*.dat
+
+# OS and system files
+desktop.ini
+*.ini
+.DS_Store
+Thumbs.db

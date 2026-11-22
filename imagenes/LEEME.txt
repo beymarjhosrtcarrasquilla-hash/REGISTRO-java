@@ -1,0 +1,2 @@
+Copie aqui los 16 archivos .jpg de recuperacion de contrasena (aleon.jpg, atigre.jpg, ... vtren.jpg).
+Si no estan, la aplicacion usa recuadros con el nombre de cada imagen.
