@@ -85,6 +85,17 @@ public class Validaciones {
         }
     }
 
+    /** true si el texto es un long válido. Detecta "abc", "12.5", "", "12a", etc. */
+    public static boolean esLong(String texto) {
+        if (esVacio(texto)) return false;
+        try {
+            Long.parseLong(texto.trim());
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     /** true si el texto es un double válido. Acepta "12.5" y también "12,5" (coma decimal). */
     public static boolean esDouble(String texto) {
         if (esVacio(texto)) return false;

@@ -19,6 +19,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ConfiguracionGui extends javax.swing.JDialog {
 
+    private static final int MAX_GRUPOS = 6;
     private boolean actualizandoCombo = false;
     private String usuarioSesion = "";
 
@@ -245,7 +246,7 @@ public class ConfiguracionGui extends javax.swing.JDialog {
         }
 
         int cantidad = cfg.getNroAsignaturas();
-        if (cantidad <= 0 || cantidad > 6) {
+        if (cantidad <= 0 || cantidad > MAX_GRUPOS) {
             cantidad = 3;
         }
 
@@ -515,9 +516,9 @@ public class ConfiguracionGui extends javax.swing.JDialog {
     private void btnAgregarGrupoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarGrupoActionPerformed
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         int actual = model.getColumnCount() - 1;
-        if (actual >= 6) {
+        if (actual >= MAX_GRUPOS) {
             JOptionPane.showMessageDialog(this,
-                    "Ha alcanzado el número máximo de grupos permitidos (6).",
+                    "Ha alcanzado el número máximo de grupos permitidos (" + MAX_GRUPOS + ").",
                     "Límite alcanzado", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -589,6 +590,9 @@ public class ConfiguracionGui extends javax.swing.JDialog {
     }//GEN-LAST:event_btnQuitarGrupoActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        if (jTable1.isEditing() && jTable1.getCellEditor() != null) {
+            jTable1.getCellEditor().stopCellEditing();
+        }
         String idStr = txtIdentificacion.getText().trim();
         String nombre = txtNombre.getText().trim();
         String apellidos = txtApellidos.getText().trim();
@@ -662,7 +666,19 @@ public class ConfiguracionGui extends javax.swing.JDialog {
             cfg.setVoceroemail(getValorCelda(12, tCol), i);
 
             String telStr = getValorCelda(13, tCol);
-            cfg.setVoceroTel(Validaciones.esEntero(telStr) ? Long.parseLong(telStr) : 0L, i);
+            if (!telStr.isEmpty()) {
+                if (!Validaciones.esSoloDigitos(telStr) || !Validaciones.esLong(telStr)) {
+                    JOptionPane.showMessageDialog(this,
+                            "El teléfono del vocero en el Grupo " + tCol + " debe contener solo dígitos numéricos válidos.",
+                            "Validación", JOptionPane.WARNING_MESSAGE);
+                    jTable1.changeSelection(13, tCol, false, false);
+                    jTable1.requestFocus();
+                    return;
+                }
+                cfg.setVoceroTel(Long.parseLong(telStr), i);
+            } else {
+                cfg.setVoceroTel(0L, i);
+            }
         }
 
         boolean guardadoBD = false;

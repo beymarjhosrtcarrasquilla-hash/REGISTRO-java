@@ -198,8 +198,12 @@ public class ConfiguracionDAO {
         if (c == null) {
             return -1;
         }
+        String gBuscado = grupo != null ? grupo.trim() : "";
+        String aBuscada = asignatura != null ? asignatura.trim() : "";
         for (int i = 0; i < c.getNroAsignaturas(); i++) {
-            if (grupo.equalsIgnoreCase(c.getGrupo(i)) && asignatura.equalsIgnoreCase(c.getAsignatura(i))) {
+            String gCfg = c.getGrupo(i) != null ? c.getGrupo(i).trim() : "";
+            String aCfg = c.getAsignatura(i) != null ? c.getAsignatura(i).trim() : "";
+            if (gBuscado.equalsIgnoreCase(gCfg) && aBuscada.equalsIgnoreCase(aCfg)) {
                 return i;
             }
         }

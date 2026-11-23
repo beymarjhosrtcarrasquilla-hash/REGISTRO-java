@@ -50,7 +50,7 @@ public class RegistroGui extends javax.swing.JDialog {
     }
 
     private JRadioButton[] radiosGrupo() {
-        return new JRadioButton[]{jRadioButton1, jRadioButton2, jRadioButton3, jRadioButton4, jRadioButton5};
+        return new JRadioButton[]{jRadioButton1, jRadioButton2, jRadioButton3, jRadioButton4, jRadioButton5, jRadioButton12};
     }
 
     private JRadioButton[] radiosPlataforma() {
@@ -92,14 +92,24 @@ public class RegistroGui extends javax.swing.JDialog {
             // Actualizar dinámicamente los radio buttons según los grupos y asignaturas configurados
             JRadioButton[] radios = radiosGrupo();
             int nro = config.getNroAsignaturas();
-            for (int i = 0; i < radios.length; i++) {
-                if (i < nro && config.getGrupo(i) != null && !config.getGrupo(i).trim().isEmpty()) {
+            int mostrados = 0;
+            for (int i = 0; i < nro && mostrados < radios.length; i++) {
+                String grupo = config.getGrupo(i) != null ? config.getGrupo(i).trim() : "";
+                if (!grupo.isEmpty()) {
                     String asig = config.getAsignatura(i) != null ? config.getAsignatura(i).trim() : "";
-                    radios[i].setText(config.getGrupo(i).trim() + (asig.isEmpty() ? "" : " " + asig));
-                    radios[i].setVisible(true);
-                } else {
-                    radios[i].setVisible(false);
+                    radios[mostrados].setText(grupo + (asig.isEmpty() ? "" : " " + asig));
+                    radios[mostrados].putClientProperty("indiceConfig", i);
+                    radios[mostrados].putClientProperty("grupoConfig", grupo);
+                    radios[mostrados].putClientProperty("asignaturaConfig", asig);
+                    radios[mostrados].setVisible(true);
+                    mostrados++;
                 }
+            }
+            for (int i = mostrados; i < radios.length; i++) {
+                radios[i].putClientProperty("indiceConfig", null);
+                radios[i].putClientProperty("grupoConfig", null);
+                radios[i].putClientProperty("asignaturaConfig", null);
+                radios[i].setVisible(false);
             }
         }
         limpiar();
@@ -120,6 +130,23 @@ public class RegistroGui extends javax.swing.JDialog {
         return i < 0 ? new String[]{t, ""} : new String[]{t.substring(0, i), t.substring(i + 1).trim()};
     }
 
+    private String[] obtenerGrupoYAsignatura(JRadioButton rb) {
+        Object g = rb.getClientProperty("grupoConfig");
+        Object a = rb.getClientProperty("asignaturaConfig");
+        if (g instanceof String) {
+            return new String[]{(String) g, a instanceof String ? (String) a : ""};
+        }
+        return partirRadio(rb);
+    }
+
+    private int obtenerIndiceConfig(JRadioButton rb, String[] ga) {
+        Object idxProp = rb.getClientProperty("indiceConfig");
+        if (idxProp instanceof Integer) {
+            return (Integer) idxProp;
+        }
+        return ConfiguracionDAO.indiceDe(config, ga[1], ga[0]);
+    }
+
     private JRadioButton radioSeleccionado(JRadioButton[] radios) {
         for (JRadioButton rb : radios) {
             if (rb.isSelected()) {
@@ -137,8 +164,8 @@ public class RegistroGui extends javax.swing.JDialog {
             jTextField2.setText("");
             return;
         }
-        String[] ga = partirRadio(rb);
-        int idx = ConfiguracionDAO.indiceDe(config, ga[1], ga[0]);
+        String[] ga = obtenerGrupoYAsignatura(rb);
+        int idx = obtenerIndiceConfig(rb, ga);
         jTextField4.setText(idx >= 0 ? config.getSede(idx) : "");
         jTextField2.setText(idx >= 0 ? config.getVoceroApNombre(idx) : "");
         if (original == null) {
@@ -185,9 +212,13 @@ public class RegistroGui extends javax.swing.JDialog {
     private void cargarRegistro(Registro r) {
         JRadioButton elegido = null;
         for (JRadioButton rb : radiosGrupo()) {
-            String[] ga = partirRadio(rb);
+            if (!rb.isVisible()) {
+                continue;
+            }
+            String[] ga = obtenerGrupoYAsignatura(rb);
             if (ga[0].equalsIgnoreCase(r.getGrupo()) && ga[1].equalsIgnoreCase(r.getAsignatura())) {
                 elegido = rb;
+                break;
             }
         }
         if (elegido == null) {
@@ -261,7 +292,7 @@ public class RegistroGui extends javax.swing.JDialog {
             error("Seleccione la asignatura y el grupo.");
             return null;
         }
-        String[] ga = partirRadio(rbGrupo);
+        String[] ga = obtenerGrupoYAsignatura(rbGrupo);
         int nro;
         try {
             nro = Integer.parseInt(jTextField1.getText().trim());
@@ -300,7 +331,7 @@ public class RegistroGui extends javax.swing.JDialog {
         }
         JRadioButton rbPlat = radioSeleccionado(radiosPlataforma());
         String plataforma = rbPlat == null ? "N/A" : rbPlat.getText().trim();
-        int idx = ConfiguracionDAO.indiceDe(config, ga[1], ga[0]);
+        int idx = obtenerIndiceConfig(rbGrupo, ga);
         int matriculados = idx >= 0 ? config.getEstMatriculados(idx) : 0;
         if (matriculados > 0 && noAsisten > matriculados) {
             error("Los estudiantes que no asisten (" + noAsisten + ") superan los matriculados (" + matriculados + ").");
@@ -417,6 +448,7 @@ public class RegistroGui extends javax.swing.JDialog {
         jLabel17 = new javax.swing.JLabel();
         jRadioButton10 = new javax.swing.JRadioButton();
         jRadioButton11 = new javax.swing.JRadioButton();
+        jRadioButton12 = new javax.swing.JRadioButton();
         jLabel18 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
@@ -491,6 +523,10 @@ public class RegistroGui extends javax.swing.JDialog {
         buttonGroup1.add(jRadioButton5);
         jRadioButton5.setText("4303C Prog ll ");
         getContentPane().add(jRadioButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 170, -1, -1));
+
+        buttonGroup1.add(jRadioButton12);
+        jRadioButton12.setText("Grupo 6");
+        getContentPane().add(jRadioButton12, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 195, -1, -1));
 
         jLabel9.setText("Fecha");
         getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 220, -1, -1));
@@ -817,6 +853,7 @@ public class RegistroGui extends javax.swing.JDialog {
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton10;
     private javax.swing.JRadioButton jRadioButton11;
+    private javax.swing.JRadioButton jRadioButton12;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton4;
